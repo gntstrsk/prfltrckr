@@ -1,0 +1,19 @@
+{
+  "name": "prfltrckr",
+  "version": "1.0.0",
+  "description": "For tracking personas.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gntstrsk/prfltrckr.git"
+  },
+  "author": "gntstrsk",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gntstrsk/prfltrckr/issues"
+  },
+  "homepage": "https://github.com/gntstrsk/prfltrckr#readme"
+}
