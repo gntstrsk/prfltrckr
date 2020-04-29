@@ -1,0 +1,110 @@
+db.createCollection("persons", {
+   validator: {
+      $jsonSchema: {
+         bsonType: "object",
+         required: [ "name", "nicknames", "my_nicknames", "sexual_orientation", "sex", "meeting_context", "relationship_history", "groups", "birthday", "important_notes" ],
+         properties: {
+            name: {
+               bsonType: "string",
+               description: "Name of persona."
+            },
+            nicknames: {
+               bsonType: "array",
+               description: "Known nicknames of persona.",
+               items: {
+                   bsonType: "string"
+               }
+            },
+            my_nicknames: {
+               bsonType: "array",
+               description: "Nicknames I've given.",
+               items: {
+                   bsonType: "string"
+               }
+            },
+            sexual_orientation: {
+               bsonType: "string",
+               description: "Known sexual orientation."
+            },
+            sex: {
+               enum: [ "Male", "Female" ],
+               description: "The ever-debated duality."
+            },
+            meeting_context: {
+                bsonType: "object",
+                description: "When... where... why... how...",
+                required: [ "when", "where", "why", "how" ],
+                properties: {
+                    when: {
+                        bsonType: "date",
+                        description: "Roughly the destined day."
+                    },
+                    where: {
+                        bsonType: "string",
+                        description: "The place of meeting."
+                    },
+                    why: {
+                        bsonType: "string",
+                        description: "Reason for meeting."
+                    },
+                    how: {
+                        bsonType: "string",
+                        description: "The manner in which fate happened."
+                    }
+                }
+            },
+            relationship_history: {
+                bsonType: "object",
+                description: "Relates history of togetherness.",
+                required: [ "current" ],
+                properties: {
+                    current: {
+                        bsonType: "string",
+                        description: "Currently..."
+                    }
+                }
+            },
+            groups: {
+                bsonType: "array",
+                description: "Classifications... groupings... that make sense.",
+                items: {
+                    bsonType: "object"
+                }
+            },
+            birthday: {
+                bsonType: "date",
+                description: "Date of birth."
+            },
+            important_notes: {
+                bsonType: "string",
+                description: "More important details."
+            }
+         }
+      }
+   }
+})
+
+
+
+db.createCollection("groups", {
+    validator: {
+       $jsonSchema: {
+          bsonType: "object",
+          required: [ "name", "description", "type" ],
+          properties: {
+            name: {
+                bsonType: "string",
+                description: "Group name."
+             },
+            description: {
+                bsonType: "string",
+                description: "Meta..."
+            },
+            type: {
+                bsonType: "string",
+                description: "Type, whether institutional, or contextual."
+            }
+          }
+       }
+    }
+ })
