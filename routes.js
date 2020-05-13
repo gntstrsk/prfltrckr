@@ -1,41 +1,62 @@
+"use strict";
+
 // General Requirements
 const express = require('express');
 const router = express.Router();
-//const fs = require('fs');
+const bodyParser = require('body-parser');
+const jsonParser = bodyParser.json();
 
-router.get('/', (req, res, next) => {
+// Controllers
+const PersonController = require('./app/controllers/PersonController');
 
-  // Return Data
+// Routes
+
+// Landing Page
+/*
+router.get('/', async (req, res, next) => {
   res.status(200).json({
     hello: "world"
   });
+});
+*/
 
-  /*
-  // Parse JSON File
-  const rawData = fs.readFileSync('keywords.json');
-  const parsedData = JSON.parse(rawData);
-
-  // Get Random Name per Keyword
-  const list = [];
-  let index = 0;
-  for (const keyword of parsedData.keywords) {
-    index = Math.floor(Math.random() * keyword.items.length);
-    list.push(keyword.items[index].name);
-  }
-
-  const journalName = list.join(' ');
-  
-  res.render('pages/index',{
-  	journalName: journalName
+// Get All Persons
+router.get('/persons/', async (req, res, next) => {
+  const persons = await PersonController.findAll();
+  res.status(200).json({
+    hello: persons
   });
-  */
-
-
 });
 
-router.get('/persons/', (req, res, next) => {
+// Get Person By Id
+router.get('/persons/:id', async (req, res, next) => {
+  const persons = await PersonController.findOne(req.params);
   res.status(200).json({
-    hello: "nice"
+    hello: persons
+  });
+});
+
+// Create Person
+router.post('/persons/', jsonParser, async (req, res, next) => {
+  const persons = await PersonController.create(req.body);
+  res.status(200).json({
+    hello: persons
+  });
+});
+
+// Update Person
+router.patch('/persons/', async (req, res, next) => {
+  const persons = await PersonController.update(req.params);
+  res.status(200).json({
+    hello: persons
+  });
+});
+
+// Delete Person
+router.delete('/persons/:id', async (req, res, next) => {
+  const persons = await PersonController.remove(req.params);
+  res.status(200).json({
+    hello: persons
   });
 });
 
