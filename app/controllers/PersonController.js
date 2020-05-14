@@ -1,87 +1,193 @@
 "use strict";
 
-const Person = require('../models/Person'); //TODO require all models programmatically
-const util = require('../../utils');
+const {schema, Person} = require('../models/Person'); //TODO require all models programmatically
+const message = require('../helpers/message');
+const validator = require('../helpers/validator');
+const standardizer = require('../helpers/standardizer');
+
+const find = async (params, isActive = true) => {
+    params.is_active = isActive;
+    const persons = await Person.find(params);
+    return persons;
+}
 
 exports.findAll = async () => {
-    const persons = await Person.find();
-    return util.formJsonResponse('success', "All Persons fetched!", persons);
-};
+
+    try {
+
+        const persons = await find({});
+
+        return message.buildJSON('success', "ResourceReadSuccess", persons);
+
+    } catch (err) {
+        console.log(err); // TODO: alert!
+        return ;
+    }
+
+}
 
 exports.findOne = async (params) => {
-    if (Object.keys(params.hasOwnProperty('id'))) {
-        try {
-            const person = await Person.findById(params.id);
-        } catch (err) {
-            //const errors = util.validationErrorHandler(err);
-            if(err.name == 'CastError') {
-                return util.formJsonResponse('error', "Error fetching person!", err);
-            } else {
-                console.log(err);
-                // TODO: better error logging------ format this!
-            }
+
+    try {
+
+        params = standardizer.prepareForDB(params);
+
+        const requirements = ['id'];
+        const screened = validator.prevalidate(params, schema, requirements);
+
+        if (screened.isValid) {
             
+            const query = {
+                _id: params._id
+            };
+
+            const person = await find(query);
+            
+            return message.buildJSON('success', "ResourceReadSuccess", person);
         }
-        return util.formJsonResponse('success', "Person fetched!", person);
+
+        return message.buildJSON('error', "No id given!", standardizer.formatErrors(screened.prevalidationErrors));
+
+    } catch (err) {
+        console.log(err); // TODO: alert!
+        return ;
     }
-    return util.formJsonResponse('error', "No id given!");
-};
+
+}
 
 exports.create = async (params) => {
-    var errors = '';
-    const person = new Person(params);
-    await person.save(function (err, person) {
-        if (err) {
-            errors = util.validationErrorHandler(err);
-        }
-    });
 
-    const errorCount = Object.keys(errors).length;
-    if (errorCount > 0) {
-        return util.formJsonResponse('error', "Person-creation error encountered!", errors);    
+    try {
+
+        params = standardizer.prepareForDB(params); //check
+
+        var errors = '';
+        const person = new Person(params);
+        await person.save(function (err, person) {
+            if (err) {
+                errors = standardizer.formatErrors(err); // TODO: parse this
+            }
+        });
+
+        const errorCount = Object.keys(errors).length;
+        if (errorCount > 0) {
+            return message.buildJSON('error', "ResourceCreationSuccess", errors);    
+        }
+        return message.buildJSON('success', "Person successfully created!", person);
+        
+    } catch (err) {
+        console.log(err); // TODO: alert!
+        return ;
     }
-    return util.formJsonResponse('success', "Person successfully created!", person);
+
 }
 
-exports.update = (params) => {
-    return;
-}
+exports.update = async (params) => {
 
-exports.remove = (params) => {
-    return Person.findById(params.id);
-}
+    try {
 
-/*
+        params = standardizer.prepareForDB(params);
 
-var wrapper = {};
+        const screened = validator.prevalidate(params, schema);
 
-wrapper.create = function(db, attributes){
-    const Person = getModel(db);
-    const person = new Person(attributes);
+        if (screened.isValid) {
 
-    person.save(function (err, person) {
-        if (err) {
-            // TODO make error logging better-- timestamps! 
-            console.log(Object.values(err));
+            const query = {
+                _id: params._id
+            };
+            
+            const person = await find(query);
+
+            console.log(person);
+
+            if (Array.isArray(person) && person.length) {
+
+                const updatedPerson = await Person.update(query, params);
+
+                return message.buildJSON('success', "ResourceUpdateSuccess", params);
+            }
+            
+            return message.buildJSON('error', "ResourceNotFoundError", "id does not exist!");
         }
-        console.log(person);
-    });
+
+        return message.buildJSON('error', "PrevalidationError", standardizer.formatErrors(screened.prevalidationErrors));
+
+    } catch (err) {
+        console.log(err); // TODO: alert!
+        return ;
+    }
 
 }
 
-wrapper.findOneById = function(id){
-    console.log("findOneById");
+exports.deactivate = async (params) => {
+    try {
+
+        params = standardizer.prepareForDB(params);
+        params.is_active = false;
+
+        const requirements = ['id'];
+        const screened = validator.prevalidate(params, schema, requirements);
+
+        if (screened.isValid) {
+
+            const query = {
+                _id: params._id
+            };
+
+            const person = await find(query);
+
+            if (Array.isArray(person) && person.length) {
+
+                const updatedPerson = await Person.update(query, params);
+
+                return message.buildJSON('success', "ResourceDeletionSuccess", params);
+            }
+            
+            return message.buildJSON('error', "ResourceNotFoundError", "id does not exist!");
+        }
+
+        return message.buildJSON('error', "PrevalidationError", standardizer.formatErrors(screened.prevalidationErrors));
+
+    } catch (err) {
+        console.log(err); // TODO: alert!
+        return ;
+    }
 }
 
-wrapper.getAll = function(){
-    console.log("all");
+exports.activate = async (params) => {
+    try {
+
+        console.log(params);
+
+        params = standardizer.prepareForDB(params);
+
+        console.log(params);
+
+        const requirements = ['id'];
+        const screened = validator.prevalidate(params, schema, requirements);
+
+        if (screened.isValid) {
+
+            const query = {
+                _id: params._id
+            };
+
+            const person = await find(query, false);
+
+            if (Array.isArray(person) && person.length) {
+
+                const updatedPerson = await Person.update(query, { $set: {is_active: true} });
+
+                return message.buildJSON('success', "ResourceActivationSuccess", params);
+            }
+            
+            return message.buildJSON('error', "ResourceNotFoundError", "id does not exist!");
+        }
+
+        return message.buildJSON('error', "PrevalidationError", standardizer.formatErrors(screened.prevalidationErrors));
+
+    } catch (err) {
+        console.log(err); // TODO: alert!
+        return ;
+    }
 }
-
-module.exports = wrapper;
-*/
-
-/*
-Person.getAll();
-Person.findOneById(123);
-Person.create(db, {name:"TEST123",fave:1});
-*/
