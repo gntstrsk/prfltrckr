@@ -1,7 +1,7 @@
 "use strict";
 
 const mongoose = require("mongoose");
-
+/*
 const schema = {
     name: {
         type: String,
@@ -72,9 +72,31 @@ const schema = {
      important_notes: {
          type: String,
          description: "More important details."
+     },
+     is_active: {
+         type: Boolean,
+         description: "Deletion is never permanent."
      }
-
+};
+*/
+const schema = {
+    name: {
+        type: String,
+        description: "Name of persona."
+     },
+     nicknames: {
+        type: [String],
+        description: "Known nicknames of persona."
+     },
+     my_nicknames: {
+        type: [String],
+        description: "Nicknames I've given."
+     },
+     is_active: {
+        type: Boolean,
+        description: "Deletion is never permanent."
+    }
 };
 
 const Person = mongoose.model('Person', new mongoose.Schema(schema));
-module.exports = Person;
+module.exports = {schema, Person};

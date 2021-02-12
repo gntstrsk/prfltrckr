@@ -61,6 +61,8 @@ exports.create = async (params) => {
 
         params = standardizer.prepareForDB(params); //check
 
+        // TODO: Add prevalidator here
+
         var errors = '';
         const person = new Person(params);
         await person.save(function (err, person) {
