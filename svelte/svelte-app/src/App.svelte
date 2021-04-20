@@ -5,7 +5,11 @@
 	import TileView from './TileView.svelte';
 	import ProfileView from './ProfileView.svelte';
 
-	const views = ["Index", "ListView", "TileView", "ProfileView"];
+	import { onMount } from 'svelte';
+
+	/* Splash Code Logic */
+
+	//const views = [Index, ListView, TileView, ProfileView];
 	let currentView = Index;
 
 	const code = "asterisk";
@@ -35,4 +39,10 @@
 <svelte:window on:keydown={handleKeydown}/>
 
 <svelte:component this={currentView}/>
+
+
+<style>
+
+
+</style>
 
